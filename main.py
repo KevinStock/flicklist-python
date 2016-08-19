@@ -1,5 +1,5 @@
 import webapp2
-
+import cgi
 
 # html boilerplate for the top of every page
 page_header = """
@@ -18,13 +18,31 @@ page_footer = """
 </html>
 """
 
+def get_current_watchlist():
+    watch_list = [
+        "Big",
+        "Watchmen",
+        "Mad Max",
+        "Independence Day",
+        "Godzilla"
+    ]
+    return watch_list
+
+def get_unwanated():
+    bad_movies = [
+        "Saw 6",
+        "Dirty Dancing"
+    ]
+    return bad_movies
+
+
 class Index(webapp2.RequestHandler):
     """ Handles requests coming in to '/' (the root of our site)
         e.g. www.flicklist.com/
     """
 
     def get(self):
-
+        error = self.request.get("error")
         edit_header = "<h3>Edit My Watchlist</h3>"
 
         # a form for adding new movies
@@ -37,7 +55,12 @@ class Index(webapp2.RequestHandler):
             </label>
             <input type="submit" value="Add It"/>
         </form>
-        """
+        <strong style="color: red">{}</strong>
+        """.format(error)
+
+        options = ""
+        for movie in get_current_watchlist():
+            options += '<option value="{0}">{0}</option>'.format(cgi.escape(movie, quote=True))
 
         # a form for crossing off movies
         crossoff_form = """
@@ -45,16 +68,13 @@ class Index(webapp2.RequestHandler):
             <label>
                 I want to cross off
                 <select name="crossed-off-movie"/>
-                    <option value="Star Wars">Star Wars</option>
-                    <option value="Minions">Minions</option>
-                    <option value="Freaky Friday">Freaky Friday</option>
-                    <option value="My Favorite Martian">My Favorite Martian</option>
+                    {}
                 </select>
                 from my watchlist.
             </label>
             <input type="submit" value="Cross It Off"/>
         </form>
-        """
+        """.format(options)
 
         page_content = edit_header + add_form + crossoff_form
         response = page_header + page_content + page_footer
@@ -69,6 +89,11 @@ class AddMovie(webapp2.RequestHandler):
     def post(self):
         # look inside the request to figure out what the user typed
         new_movie = self.request.get("new-movie")
+
+        if new_movie in get_unwanated():
+            error = new_movie + " is not the movie you are looking for."
+            self.redirect("/?error={}".format(cgi.escape(error, quote=True)))
+            return
 
         # build response content
         new_movie_element = "<strong>" + new_movie + "</strong>"
