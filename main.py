@@ -1,5 +1,11 @@
 import webapp2
 
+def is_integer(canidate_int):
+    for c in canidate_int
+        if not c.isdigit():
+            return False
+    return True
+
 
 # html boilerplate for the top of every page
 page_header = """
@@ -41,14 +47,37 @@ class Index(webapp2.RequestHandler):
 
         # TODO 1
         # Include another form so the user can "cross off" a movie from their list.
-
+        remove_dropdown = """
+        <form action="/remove" method="post">
+        	<label>
+        		I want to remove
+        		<select type="dropdown" name="del-movie">
+        			<option>Big</option>
+        			<option>Contact</option>
+        			<option>Interstellar</option>
+        		</select>
+        	</label>
+        	<input type="submit" value="Remove It" />
+        </form>
+        """
+#
+#         remove_form = """
+#         <form action="/remove" method="post">
+#             <label>
+#                 I want to remove
+#                 <input type="text" name="del-movie"/>
+#                 from my watchlist.
+#             </label>
+#             <input type="submit" value="Remove It"/>
+#         </form>
+#         """
 
         # TODO 4 (Extra Credit)
         # modify your form to use a dropdown (<select>) instead a
         # text box (<input type="text"/>)
 
 
-        response = page_header + edit_header + add_form + page_footer
+        response = page_header + edit_header + add_form + remove_dropdown + page_footer
         self.response.write(response)
 
 
@@ -74,11 +103,25 @@ class AddMovie(webapp2.RequestHandler):
 # handle the request from your 'cross-off' form. The user should see a message like:
 # "Star Wars has been crossed off your watchlist".
 
+class RemoveMovie(webapp2.RequestHandler):
+    """ Handles requests coming in to '/remove'
+        e.g. www.flicklist.com/remove
+    """
+
+    def post(self):
+        del_movie = self.request.get("del-movie")
+
+        del_movie_element = "<strong>" + del_movie + "</strong>"
+        sentence = del_movie_element + " has been removed from your Watchlist!"
+
+        response = page_header + "<p>" + sentence + "</p>" + page_footer
+        self.response.write(response)
 
 
 # TODO 3
 # Include a route for your cross-off handler, by adding another tuple to the list below.
 app = webapp2.WSGIApplication([
     ('/', Index),
-    ('/add', AddMovie)
+    ('/add', AddMovie),
+    ('/remove', RemoveMovie)
 ], debug=True)
