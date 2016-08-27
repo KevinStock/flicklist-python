@@ -71,8 +71,14 @@ class AddMovie(webapp2.RequestHandler):
 
         # TODO 1
         # Use a template to render the confirmation message
+        t_add = jinja_env.get_template("add.html")
+        main_content = t_add.render(movie=new_movie_escaped)
+        page_header = t_page_header.render(title="FlickList: " + new_movie_escaped + " has been added to your WatchList")
+        page_footer = t_page_footer.render()
+        
+        response = page_header + main_content + page_footer
+        self.response.write(response)
 
-        self.response.write("Under construction...")
 
 
 class CrossOffMovie(webapp2.RequestHandler):
