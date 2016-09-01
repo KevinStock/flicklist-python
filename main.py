@@ -2,6 +2,14 @@ import webapp2
 import cgi
 import jinja2
 import os
+from google.appengine.ext import db
+
+# Models
+class MovieList(db.Model):
+    title = db.StringProperty(required = True),
+    watched = db.BooleanProperty(required = True),
+    rating = db.RatingProperty(required = True),
+    created = db.DateTimeProperty(auto_now_add = True)
 
 # set up jinja
 template_dir = os.path.join(os.path.dirname(__file__), "templates")
@@ -15,18 +23,19 @@ terrible_movies = [
     "Nine Lives"
 ]
 
-
 def getUnwatchedMovies():
     """ Returns the list of movies the user wants to watch (but hasnt yet) """
-
+    unwatched_movies = db.GqlQuery("SELECT * FROM MovieList WHERE watched = False")
     # for now, we are just pretending
-    return [ "Star Wars", "Minions", "Freaky Friday", "My Favorite Martian" ]
+    #return [ "Star Wars", "Minions", "Freaky Friday", "My Favorite Martian" ]
+    return unwatched_movies
 
 
 def getWatchedMovies():
     """ Returns the list of movies the user has already watched """
-
-    return [ "The Matrix", "The Big Green", "Ping Ping Playa" ]
+    watched_movies = db.GqlQuery("SELECT * FROM MovieList WHERE watched = True")
+    #return [ "The Matrix", "The Big Green", "Ping Ping Playa" ]
+    return watched_movies
 
 
 class Handler(webapp2.RequestHandler):
@@ -73,6 +82,10 @@ class AddMovie(Handler):
 
         # 'escape' the user's input so that if they typed HTML, it doesn't mess up our site
         new_movie_escaped = cgi.escape(new_movie, quote=True)
+
+        # add movie to db
+        movie = MovieList(title = new_movie_escaped, watched = False, rating = 0)
+        movie.put()
 
         # render the confirmation message
         t = jinja_env.get_template("add-confirmation.html")
