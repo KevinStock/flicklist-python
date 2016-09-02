@@ -6,9 +6,9 @@ from google.appengine.ext import db
 
 # Models
 class MovieList(db.Model):
-    title = db.StringProperty(required = True),
-    watched = db.BooleanProperty(required = True),
-    rating = db.RatingProperty(required = True),
+    title = db.StringProperty(required = True)
+    watched = db.BooleanProperty(required = True)
+    rating = db.RatingProperty(required = True)
     created = db.DateTimeProperty(auto_now_add = True)
 
 # set up jinja
