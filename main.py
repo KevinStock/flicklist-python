@@ -36,6 +36,8 @@ class Movie(db.Model):
     created = db.DateTimeProperty(auto_now_add = True)
     watched = db.BooleanProperty(required = True, default = False)
     rating = db.StringProperty()
+    #owner = db.ReferenceProperty(User)
+    owner = db.IntegerProperty()
 
 
 class Handler(webapp2.RequestHandler):
@@ -102,7 +104,7 @@ class Index(Handler):
         """ Display the homepage (the list of unwatched movies) """
 
         # query for all the movies that have not yet been watched
-        unwatched_movies = db.GqlQuery("SELECT * FROM Movie WHERE watched = False")
+        unwatched_movies = db.GqlQuery("SELECT * FROM Movie WHERE watched = False AND owner = %d" % self.user.key().id())
 
         t = jinja_env.get_template("frontpage.html")
         response = t.render(
@@ -137,7 +139,7 @@ class AddMovie(Handler):
         new_movie_title_escaped = cgi.escape(new_movie_title, quote=True)
 
         # construct a movie object for the new movie
-        movie = Movie(title = new_movie_title_escaped)
+        movie = Movie(title = new_movie_title_escaped, owner = self.user.key().id())
         movie.put()
 
         # render the confirmation message
