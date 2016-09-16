@@ -11,4 +11,10 @@ For each movie in the list, display the username of whoever watched it and what 
     e.g. Jesse watched The Big Green, and gave it a rating of ***** stars.
 -->
 
+{% for movie in recently_watched_movies %}
+    <strong>{{ movie.owner.username }}</strong> watched
+    <strong>{{ movie.title }}</strong> and gave it a rating of
+    <strong>{{ movie.rating }}</strong> stars.
+{% endfor %}
+
 {% endblock %}
